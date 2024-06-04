@@ -7,10 +7,6 @@ use serde::{Serialize, Deserialize};
 /// When the super expression appears in evaluation, the immediately
 /// following property operator is limited to access a property from the base class
 /// or invoke a method of the base class.
-/// 
-/// ```
-/// super.f()
-/// ```
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SuperExpression {
     pub location: Location,
