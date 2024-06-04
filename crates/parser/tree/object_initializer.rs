@@ -1,13 +1,13 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObjectInitializer {
     pub location: Location,
     pub fields: Vec<Rc<InitializerField>>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum InitializerField {
     Field {
         name: (FieldName, Location),
@@ -41,7 +41,7 @@ impl InitializerField {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FieldName {
     Identifier(QualifiedIdentifier),
     Brackets(Rc<Expression>),

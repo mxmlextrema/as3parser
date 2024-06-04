@@ -2,7 +2,7 @@ use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
 /// An expression followed by optional chaining operations.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptionalChainingExpression {
     pub location: Location,
     pub base: Rc<Expression>,
@@ -15,7 +15,7 @@ pub struct OptionalChainingExpression {
 
 /// Internal expression used as the topmost expression
 /// of a sequence of optional chaining operations.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OptionalChainingPlaceholder {
     pub location: Location,
 }

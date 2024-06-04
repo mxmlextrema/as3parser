@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ArrayLiteral {
     pub location: Location,
     /// ASDoc. Always ignore this field; it is used solely
@@ -10,7 +10,7 @@ pub struct ArrayLiteral {
     pub elements: Vec<Element>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Element {
     Elision,
     Expression(Rc<Expression>),

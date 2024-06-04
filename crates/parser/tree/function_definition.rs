@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionDefinition {
     pub location: Location,
     pub asdoc: Option<Rc<AsDoc>>,
@@ -35,7 +35,7 @@ impl FunctionDefinition {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FunctionName {
     Identifier((String, Location)),
     Getter((String, Location)),
@@ -56,7 +56,7 @@ impl FunctionName {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionCommon {
     pub location: Location,
     /// Indicates whether the corresponding function
@@ -75,14 +75,14 @@ impl FunctionCommon {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionSignature {
     pub location: Location,
     pub parameters: Vec<Rc<Parameter>>,
     pub result_type: Option<Rc<Expression>>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Parameter {
     pub location: Location,
     pub kind: ParameterKind,
@@ -90,7 +90,7 @@ pub struct Parameter {
     pub default_value: Option<Rc<Expression>>,
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[repr(u32)]
 pub enum ParameterKind {
     Required = 1,
@@ -104,7 +104,7 @@ impl ParameterKind {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FunctionBody {
     Expression(Rc<Expression>),
     Block(Rc<Block>),

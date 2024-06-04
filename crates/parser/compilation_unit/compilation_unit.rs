@@ -1,4 +1,5 @@
 use std::{any::Any, cell::RefMut};
+use std::fmt::{Debug, Formatter};
 use crate::ns::*;
 use hydroper_source_text::SourceText;
 
@@ -15,6 +16,12 @@ pub struct CompilationUnit {
     pub(crate) comments: RefCell<Vec<Rc<Comment>>>,
     pub(crate) included_from: RefCell<Option<Rc<CompilationUnit>>>,
     pub(crate) nested_compilation_units: RefCell<Vec<Rc<CompilationUnit>>>,
+}
+
+impl Debug for CompilationUnit {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("CompilationUnit")
+    }
 }
 
 impl Default for CompilationUnit {

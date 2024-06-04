@@ -2,7 +2,7 @@ use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
 /// Directive attached with a source location.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Directive {
     EmptyStatement(EmptyStatement),
     ExpressionStatement(ExpressionStatement),

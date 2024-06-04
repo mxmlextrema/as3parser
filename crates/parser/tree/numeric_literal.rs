@@ -5,7 +5,7 @@ use std::str::FromStr;
 use conv::ValueFrom;
 use num_traits::ToPrimitive;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NumericLiteral {
     pub location: Location,
     /// The numeric value in character representation. Such representation may be parsed

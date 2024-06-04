@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BinaryExpression {
     pub location: Location,
     pub operator: Operator,

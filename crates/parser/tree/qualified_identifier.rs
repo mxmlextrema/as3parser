@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QualifiedIdentifier {
     pub location: Location,
     pub attribute: bool,
@@ -9,7 +9,7 @@ pub struct QualifiedIdentifier {
     pub id: QualifiedIdentifierIdentifier,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum QualifiedIdentifierIdentifier {
     Id((String, Location)),
     Brackets(Rc<Expression>),

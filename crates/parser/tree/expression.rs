@@ -2,7 +2,7 @@ use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
 /// Expression attached with a source location.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Expression {
     QualifiedIdentifier(QualifiedIdentifier),
     Paren(ParenExpression),

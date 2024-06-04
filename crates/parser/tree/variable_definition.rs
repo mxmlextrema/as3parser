@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VariableDefinition {
     pub location: Location,
     pub asdoc: Option<Rc<AsDoc>>,
@@ -10,20 +10,20 @@ pub struct VariableDefinition {
     pub bindings: Vec<Rc<VariableBinding>>,
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum VariableDefinitionKind {
     Var,
     Const,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimpleVariableDefinition {
     pub location: Location,
     pub kind: (VariableDefinitionKind, Location),
     pub bindings: Vec<Rc<VariableBinding>>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VariableBinding {
     pub destructuring: TypedDestructuring,
     pub initializer: Option<Rc<Expression>>,

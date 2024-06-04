@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Attribute {
     Metadata(Rc<Metadata>),
     Expression(Rc<Expression>),
@@ -17,7 +17,7 @@ pub enum Attribute {
     Dynamic(Location),
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Metadata {
     pub location: Location,
     pub asdoc: Option<Rc<AsDoc>>,
@@ -25,14 +25,14 @@ pub struct Metadata {
     pub entries: Option<Vec<Rc<MetadataEntry>>>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MetadataEntry {
     pub location: Location,
     pub key: Option<(String, Location)>,
     pub value: Rc<MetadataValue>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MetadataValue {
     IdentifierString((String, Location)),
     String((String, Location)),

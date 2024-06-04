@@ -1,7 +1,7 @@
 use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ImportDirective {
     pub location: Location,
     pub alias: Option<(String, Location)>,
@@ -9,7 +9,7 @@ pub struct ImportDirective {
     pub import_specifier: ImportSpecifier,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ImportSpecifier {
     Wildcard(Location),
     Recursive(Location),
