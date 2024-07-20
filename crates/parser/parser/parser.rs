@@ -8,6 +8,7 @@ pub struct Parser<'input> {
     locations: Vec<Location>,
     activations: Vec<ParserActivation>,
     ignore_xml_whitespace: bool,
+    documentable_metadata: Vec<String>,
     expecting_token_error: bool,
 }
 
@@ -21,6 +22,7 @@ impl<'input> Parser<'input> {
             locations: vec![],
             activations: vec![],
             ignore_xml_whitespace: options.ignore_xml_whitespace,
+            documentable_metadata: options.documentable_metadata.clone(),
             expecting_token_error: false,
         }
     }
@@ -28,6 +30,7 @@ impl<'input> Parser<'input> {
     fn options(&self) -> ParserOptions {
         ParserOptions {
             ignore_xml_whitespace: self.ignore_xml_whitespace,
+            documentable_metadata: self.documentable_metadata.clone(),
             ..default()
         }
     }
@@ -4303,7 +4306,7 @@ impl<'input> Parser<'input> {
         let mut new_attributes = Vec::<Attribute>::new();
         for attr in &context.attributes {
             if let Attribute::Metadata(metadata) = attr {
-                if !is_flex_documentable_meta_data(&metadata.name.0) && metadata.asdoc.is_some() {
+                if !self.documentable_metadata.contains(&metadata.name.0) && metadata.asdoc.is_some() {
                     new_attributes.push(Attribute::Metadata(Rc::new(Metadata {
                         location: metadata.location.clone(),
                         asdoc: None,
@@ -5181,10 +5184,6 @@ fn process_xml_pi(cu: &Rc<CompilationUnit>, byte_range: (usize, usize), name: &s
     errors
 }
 
-fn is_flex_documentable_meta_data(name: &str) -> bool {
-    ["Event", "SkinState"].contains(&name)
-}
-
 enum XmlPiError {
     UnknownAttribute(String),
     Version,
@@ -5247,6 +5246,9 @@ pub struct ParserOptions {
     /// Indicates the range of characters that shall be parsed,
     /// the first and last byte indices respectively.
     pub byte_range: Option<(usize, usize)>,
+    /// Indicates the set of meta-data that are documentable through ASDoc comments.
+    /// Defaults to \[`Event`, `SkinState`\].
+    pub documentable_metadata: Vec<String>,
 }
 
 impl Default for ParserOptions {
@@ -5254,6 +5256,7 @@ impl Default for ParserOptions {
         Self {
             ignore_xml_whitespace: true,
             byte_range: None,
+            documentable_metadata: vec!["Event".into(), "SkinState".into()],
         }
     }
 }
