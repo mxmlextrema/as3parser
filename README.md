@@ -12,7 +12,7 @@ ActionScript 3 parser in the Rust language.
 
 ## Documentation
 
-Refer to the [wiki](https://github.com/hydroper/as3parser/wiki) of this repository for various informations, including a getting started point.
+Refer to the [wiki](https://github.com/hydroperfox/as3parser/wiki) of this repository for various informations, including a getting started point.
 
 ## License
 
