@@ -1,7 +1,7 @@
 use clap::Parser;
-use file_paths::FlexPath;
+use hydroperfox_filepaths::FlexPath;
 use std::{env, fs, io};
-use as3_parser::ns::*;
+use sunform_as3parser::ns::*;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

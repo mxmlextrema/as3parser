@@ -150,12 +150,12 @@ impl Diagnostic {
             string_arguments.insert(i.to_string(), argument.to_string());
             i += 1;
         }
-        use late_format::LateFormat;
+        use hydroperfox_lateformat::LateFormat;
         let Some(msg) = messages.get(&self.id()) else {
             let id = self.id();
             panic!("Message resource is missing for ID {id}");
         };
-        msg.late_format(string_arguments)
+        msg.hydroperfox_lateformat(string_arguments)
     }
 }
 

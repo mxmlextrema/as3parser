@@ -3595,7 +3595,7 @@ impl<'input> Parser<'input> {
 
         // Resolve source
         if let Some(origin_file_path) = origin_file_path {
-            let sub_file_path = file_paths::FlexPath::from_n_native([origin_file_path.as_ref(), "..", source.as_ref()]).to_string_with_flex_separator();
+            let sub_file_path = hydroperfox_filepaths::FlexPath::from_n_native([origin_file_path.as_ref(), "..", source.as_ref()]).to_string_with_flex_separator();
             if self.tokenizer.compilation_unit().include_directive_is_circular(&sub_file_path) {
                 self.add_syntax_error(&source_path_location.clone(), DiagnosticKind::CircularIncludeDirective, vec![]);
 

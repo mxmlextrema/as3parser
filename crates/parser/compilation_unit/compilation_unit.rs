@@ -1,7 +1,7 @@
 use std::{any::Any, cell::RefMut};
 use std::fmt::{Debug, Formatter};
 use crate::ns::*;
-use hydroper_source_text::SourceText;
+use hydroperfox_sourcetext::SourceText;
 
 /// `CompilationUnit` identifies an AS3 compilation unit and contains
 /// a source text.

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
-use as3_parser::ns::*;
+use sunform_as3parser::ns::*;
 
 #[derive(Serialize, Deserialize)]
 struct ParserResult {

@@ -66,57 +66,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f538837af36e6f6a9be0faa67f9a314f8119e4e4b5867c6ab40ed60360142519"
 
 [[package]]
-name = "as3_parser"
-version = "1.0.25"
-dependencies = [
- "bitflags",
- "by_address",
- "bytes",
- "conv",
- "file_paths",
- "htmlentity",
- "hydroper_source_text",
- "late_format",
- "lazy-regex",
- "lazy_static",
- "maplit",
- "num-bigint",
- "num-derive",
- "num-traits",
- "serde",
- "serde_json",
- "unicode-general-category",
-]
-
-[[package]]
-name = "as3_parser_demo"
-version = "0.1.0"
-dependencies = [
- "as3_parser",
- "maplit",
- "serde",
- "serde_json",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "as3_parser_test"
-version = "0.4.0"
-dependencies = [
- "as3_parser",
- "clap",
- "file_paths",
- "maplit",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "asdoc-example"
 version = "0.1.0"
 dependencies = [
- "as3_parser",
+ "sunform-as3parser",
 ]
 
 [[package]]
@@ -220,15 +173,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef8ae57c4978a2acd8b869ce6b9ca1dfe817bff704c220209fdef2c0b75a01b9"
 
 [[package]]
-name = "file_paths"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6655a548f719048f152b0349acf5f1b0fa7ce430acb49d4afc1d42513f160549"
-dependencies = [
- "lazy-regex",
-]
-
-[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -246,10 +190,29 @@ dependencies = [
 ]
 
 [[package]]
-name = "hydroper_source_text"
-version = "1.0.3"
+name = "hydroperfox-filepaths"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cce3d21a188729674efc26164f9a201d567ab2fe28b6789cb802d7ca66ee7aaf"
+checksum = "633ba62fb8c3eabda797aa71f9e07b810bb2e6d79867cac66995b631f7ad49f0"
+dependencies = [
+ "lazy-regex",
+]
+
+[[package]]
+name = "hydroperfox-lateformat"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "058f35fce8e3896fe28a26a8dc8e21c8c426fcdf634d89afb2c1df0ae8172db8"
+dependencies = [
+ "lazy-regex",
+ "maplit",
+]
+
+[[package]]
+name = "hydroperfox-sourcetext"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fee574b6bfd6616b0498cb73313e9cb041b4aee42caa8f4986037a71c7ddd4a5"
 
 [[package]]
 name = "itoa"
@@ -264,16 +227,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29c15563dc2726973df627357ce0c9ddddbea194836909d655df6a75d2cf296d"
 dependencies = [
  "wasm-bindgen",
-]
-
-[[package]]
-name = "late_format"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c20a4c2785e13b46810cdd5b6df71b2bbacd6195d18d37b99098c6f52631dc6d"
-dependencies = [
- "lazy-regex",
- "maplit",
 ]
 
 [[package]]
@@ -458,6 +411,53 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
+
+[[package]]
+name = "sunform-as3parser"
+version = "1.0.0"
+dependencies = [
+ "bitflags",
+ "by_address",
+ "bytes",
+ "conv",
+ "htmlentity",
+ "hydroperfox-filepaths",
+ "hydroperfox-lateformat",
+ "hydroperfox-sourcetext",
+ "lazy-regex",
+ "lazy_static",
+ "maplit",
+ "num-bigint",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "serde_json",
+ "unicode-general-category",
+]
+
+[[package]]
+name = "sunform_as3parser_demo"
+version = "0.1.0"
+dependencies = [
+ "maplit",
+ "serde",
+ "serde_json",
+ "sunform-as3parser",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "sunform_as3parser_test"
+version = "0.4.0"
+dependencies = [
+ "clap",
+ "hydroperfox-filepaths",
+ "maplit",
+ "serde",
+ "serde_json",
+ "sunform-as3parser",
+]
 
 [[package]]
 name = "syn"
