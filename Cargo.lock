@@ -69,7 +69,7 @@ checksum = "f538837af36e6f6a9be0faa67f9a314f8119e4e4b5867c6ab40ed60360142519"
 name = "asdoc-example"
 version = "0.1.0"
 dependencies = [
- "sunform-as3parser",
+ "mxmlextrema-as3parser",
 ]
 
 [[package]]
@@ -413,7 +413,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
-name = "sunform-as3parser"
+name = "mxmlextrema-as3parser"
 version = "1.0.0"
 dependencies = [
  "bitflags",
@@ -436,19 +436,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "sunform_as3parser_demo"
+name = "mxmlextrema_as3parser_demo"
 version = "0.1.0"
 dependencies = [
  "maplit",
  "serde",
  "serde_json",
- "sunform-as3parser",
+ "mxmlextrema-as3parser",
  "wasm-bindgen",
  "web-sys",
 ]
 
 [[package]]
-name = "sunform_as3parser_test"
+name = "mxmlextrema_as3parser_test"
 version = "0.4.0"
 dependencies = [
  "clap",

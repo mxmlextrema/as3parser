@@ -1,7 +1,7 @@
 use clap::Parser;
 use hydroperfox_filepaths::FlexPath;
 use std::{env, fs, io};
-use sunform_as3parser::ns::*;
+use mxmlextrema_as3parser::ns::*;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

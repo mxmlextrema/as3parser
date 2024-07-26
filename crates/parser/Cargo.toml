@@ -1,9 +1,9 @@
 [package]
-name = "sunform-as3parser"
+name = "mxmlextrema-as3parser"
 version = "1.0.0"
 edition = "2021"
 authors = ["hydroperfox <hydroperfox@gmail.com>"]
-repository = "https://github.com/sunformsdk/as3parser"
+repository = "https://github.com/mxmlextremasdk/as3parser"
 keywords = ["actionscript", "as3", "parser"]
 description = "ActionScript 3 parser"
 license = "Apache-2.0"
@@ -11,7 +11,7 @@ license = "Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "sunform_as3parser"
+name = "mxmlextrema_as3parser"
 path = "lib.rs"
 
 [dependencies]

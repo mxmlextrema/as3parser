@@ -1,5 +1,5 @@
 use std::env;
-use sunform_as3parser::ns::*;
+use mxmlextrema_as3parser::ns::*;
 
 fn main() {
     // Define source path

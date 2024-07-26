@@ -1,9 +1,9 @@
 [package]
-name = "sunform_as3parser_test"
+name = "mxmlextrema_as3parser_test"
 version = "0.4.0"
 edition = "2021"
 authors = ["hydroperfox <hydroperfox@gmail.com>"]
-repository = "https://github.com/sunformsdk/as3parser"
+repository = "https://github.com/mxmlextremasdk/as3parser"
 keywords = ["actionscript", "as3", "parser"]
 description = "ActionScript 3 Parser Test"
 license = "Apache-2.0"
@@ -11,13 +11,13 @@ license = "Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
-name = "sunform_as3parser_test"
+name = "mxmlextrema_as3parser_test"
 path = "main.rs"
 
 [dependencies]
 clap = { version = "4.4.8", features = ["derive"] }
 hydroperfox-filepaths = "1.0.0"
-sunform-as3parser = { path = "../parser", version = "1" }
+mxmlextrema-as3parser = { path = "../parser", version = "1" }
 maplit = "1.0.2"
 serde = { version = "1.0.192", features = ["rc", "derive"] }
 serde_json = "1.0.108"
