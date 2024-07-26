@@ -456,7 +456,7 @@ dependencies = [
  "maplit",
  "serde",
  "serde_json",
- "sunform-as3parser",
+ "mxmlextrema-as3parser",
 ]
 
 [[package]]
