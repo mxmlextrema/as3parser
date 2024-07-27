@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VariableDefinition {
     pub location: Location,
-    pub asdoc: Option<Rc<AsDoc>>,
+    pub asdoc: Option<Rc<Asdoc>>,
     pub attributes: Vec<Attribute>,
     pub kind: (VariableDefinitionKind, Location),
     pub bindings: Vec<Rc<VariableBinding>>,

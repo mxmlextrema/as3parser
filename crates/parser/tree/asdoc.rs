@@ -2,16 +2,16 @@ use crate::ns::*;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AsDoc {
+pub struct Asdoc {
     pub location: Location,
     pub main_body: Option<(String, Location)>,
-    pub tags: Vec<(AsDocTag, Location)>,
+    pub tags: Vec<(AsdocTag, Location)>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum AsDocTag {
+pub enum AsdocTag {
     Author(String),
-    Copy(Rc<AsDocReference>),
+    Copy(Rc<AsdocReference>),
     Created(String),
     Default(String),
     Deprecated {
@@ -31,7 +31,7 @@ pub enum AsDocTag {
     Productversion(String),
     Return(String),
     See {
-        reference: Rc<AsDocReference>,
+        reference: Rc<AsdocReference>,
         display_text: Option<String>,
     },
     Throws {
@@ -44,7 +44,7 @@ pub enum AsDocTag {
 /// An ASDoc reference consisting of an optional base and
 /// an optional instance property fragment (`#x`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AsDocReference {
+pub struct AsdocReference {
     /// Base expression.
     pub base: Option<Rc<Expression>>,
     /// Instance property fragment following the hash character.

@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionDefinition {
     pub location: Location,
-    pub asdoc: Option<Rc<AsDoc>>,
+    pub asdoc: Option<Rc<Asdoc>>,
     pub attributes: Vec<Attribute>,
     pub name: FunctionName,
     pub common: Rc<FunctionCommon>,

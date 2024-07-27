@@ -20,7 +20,7 @@ pub enum Attribute {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Metadata {
     pub location: Location,
-    pub asdoc: Option<Rc<AsDoc>>,
+    pub asdoc: Option<Rc<Asdoc>>,
     pub name: (String, Location),
     pub entries: Option<Vec<Rc<MetadataEntry>>>,
 }

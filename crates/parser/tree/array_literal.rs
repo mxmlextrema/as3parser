@@ -6,7 +6,7 @@ pub struct ArrayLiteral {
     pub location: Location,
     /// ASDoc. Always ignore this field; it is used solely
     /// when parsing meta-data.
-    pub asdoc: Option<Rc<AsDoc>>,
+    pub asdoc: Option<Rc<Asdoc>>,
     pub elements: Vec<Element>,
 }
 

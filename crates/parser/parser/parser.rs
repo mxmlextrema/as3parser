@@ -2343,7 +2343,7 @@ impl<'input> Parser<'input> {
         })), semicolon)
     }
 
-    fn parse_qualified_identifier_statement_or_config(&mut self, context: ParserDirectiveContext, id: (String, Location), asdoc: Option<Rc<AsDoc>>) -> (Rc<Directive>, bool) {
+    fn parse_qualified_identifier_statement_or_config(&mut self, context: ParserDirectiveContext, id: (String, Location), asdoc: Option<Rc<Asdoc>>) -> (Rc<Directive>, bool) {
         self.push_location(&id.1);
         let id_location = id.1.clone();
         let id = Rc::new(Expression::QualifiedIdentifier(QualifiedIdentifier {
@@ -2372,7 +2372,7 @@ impl<'input> Parser<'input> {
         })), semicolon)
     }
 
-    fn parse_opt_config(&mut self, exp: &Rc<Expression>, asdoc: Option<Rc<AsDoc>>, context: ParserDirectiveContext) -> Option<(Rc<Directive>, bool)> {
+    fn parse_opt_config(&mut self, exp: &Rc<Expression>, asdoc: Option<Rc<Asdoc>>, context: ParserDirectiveContext) -> Option<(Rc<Directive>, bool)> {
         if self.peek_annotatable_directive_identifier_name() {
             match exp.to_configuration_identifier(self) {
                 Ok(Some((q, constant_name, metadata))) => {
@@ -3106,7 +3106,7 @@ impl<'input> Parser<'input> {
     }
 
     fn parse_directive(&mut self, context: ParserDirectiveContext) -> (Rc<Directive>, bool) {
-        let asdoc: Option<Rc<AsDoc>> = if self.peek(Token::SquareOpen) { None } else { self.parse_asdoc() };
+        let asdoc: Option<Rc<Asdoc>> = if self.peek(Token::SquareOpen) { None } else { self.parse_asdoc() };
         // ConfigurationDirective or Statement
         if let Token::Identifier(id) = &self.token.0 {
             let id = (id.clone(), self.token_location());
@@ -3366,7 +3366,7 @@ impl<'input> Parser<'input> {
         }
     }
 
-    pub(crate) fn refine_metadata(&self, exp: &Rc<Expression>, asdoc: Option<Rc<AsDoc>>) -> Result<Rc<Metadata>, MetadataRefineError> {
+    pub(crate) fn refine_metadata(&self, exp: &Rc<Expression>, asdoc: Option<Rc<Asdoc>>) -> Result<Rc<Metadata>, MetadataRefineError> {
         if let Expression::Call(CallExpression { base, arguments, .. }) = exp.as_ref() {
             let Ok(name) = self.refine_metadata_name(base) else {
                 return Err(MetadataRefineError::Syntax);
@@ -4323,7 +4323,7 @@ impl<'input> Parser<'input> {
         })
     }
 
-    pub fn parse_asdoc(&mut self) -> Option<Rc<AsDoc>> {
+    pub fn parse_asdoc(&mut self) -> Option<Rc<Asdoc>> {
         let comments = self.compilation_unit().comments.borrow();
         let last_comment = comments.last().map(|last_comment| last_comment.clone());
         drop(comments);
@@ -4335,7 +4335,7 @@ impl<'input> Parser<'input> {
                 let location1 = Location::with_offsets(self.compilation_unit(), location.first_offset + comment_prefix_length, location.last_offset - 2);
                 let content = &comment.content.borrow()[1..];
                 let (main_body, tags) = self.parse_asdoc_content(&location1, content);
-                Some(Rc::new(AsDoc {
+                Some(Rc::new(Asdoc {
                     location,
                     main_body,
                     tags,
@@ -4346,11 +4346,11 @@ impl<'input> Parser<'input> {
         })
     }
 
-    fn parse_asdoc_content(&mut self, location: &Location, content: &str) -> (Option<(String, Location)>, Vec<(AsDocTag, Location)>) {
+    fn parse_asdoc_content(&mut self, location: &Location, content: &str) -> (Option<(String, Location)>, Vec<(AsdocTag, Location)>) {
         let lines = self.split_asdoc_lines(location, content);
 
         let mut main_body: Option<(String, Location)> = None;
-        let mut tags: Vec<(AsDocTag, Location)> = vec![];
+        let mut tags: Vec<(AsdocTag, Location)> = vec![];
         let mut i = 0;
         let line_count = lines.len();
 
@@ -4407,7 +4407,7 @@ impl<'input> Parser<'input> {
         (main_body, tags)
     }
 
-    fn split_asdoc_lines(&mut self, location: &Location, content: &str) -> Vec<ParserAsDocLine> {
+    fn split_asdoc_lines(&mut self, location: &Location, content: &str) -> Vec<ParserAsdocLine> {
         let mut builder = String::new();
         let mut lines = vec![];
         let mut _line_number = location.first_line_number();
@@ -4416,7 +4416,7 @@ impl<'input> Parser<'input> {
         let mut characters = content.chars();
         while let Some(ch) = characters.next() {
             if CharacterValidator::is_line_terminator(ch) {
-                lines.push(ParserAsDocLine {
+                lines.push(ParserAsdocLine {
                     content: builder,
                     location: Location::with_offsets(self.compilation_unit(), line_first_offset, index),
                 });
@@ -4434,7 +4434,7 @@ impl<'input> Parser<'input> {
                 index += ch.len_utf8();
             }
         }
-        lines.push(ParserAsDocLine {
+        lines.push(ParserAsdocLine {
             content: builder,
             location: Location::with_offsets(self.compilation_unit(), line_first_offset, index),
         });
@@ -4455,7 +4455,7 @@ impl<'input> Parser<'input> {
         building_content_tag_name: &mut Option<(String, Location)>,
         building_content: &mut Vec<(String, Location)>,
         main_body: &mut Option<(String, Location)>,
-        tags: &mut Vec<(AsDocTag, Location)>
+        tags: &mut Vec<(AsdocTag, Location)>
     ) {
         if let Some((tag_name, ref tag_location)) = building_content_tag_name.as_ref() {
             match tag_name.as_ref() {
@@ -4464,10 +4464,10 @@ impl<'input> Parser<'input> {
                     let (content, location) = join_asdoc_content(building_content);
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &content) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
                     let location = tag_location.combine_with(location);
-                    tags.push((AsDocTag::Author(content), location));
+                    tags.push((AsdocTag::Author(content), location));
                 },
 
                 // @copy reference
@@ -4476,7 +4476,7 @@ impl<'input> Parser<'input> {
                     let location = tag_location.combine_with(c_location.clone());
                     let reference_loc = c_location.shift_whitespace(&self.compilation_unit().text()[c_location.first_offset()..c_location.last_offset()]);
                     if let Some(reference) = self.parse_asdoc_reference(&content, &reference_loc, &tag_location, &tag_name) {
-                        tags.push((AsDocTag::Copy(reference), location));
+                        tags.push((AsdocTag::Copy(reference), location));
                     }
                 },
 
@@ -4485,17 +4485,17 @@ impl<'input> Parser<'input> {
                     let (content, location) = join_asdoc_content(building_content);
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &content) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
                     let location = tag_location.combine_with(location);
-                    tags.push((AsDocTag::Created(content), location));
+                    tags.push((AsdocTag::Created(content), location));
                 },
 
                 // @default value
                 "default" => {
                     let (reference, location) = join_asdoc_content(building_content);
                     let location = tag_location.combine_with(location);
-                    tags.push((AsDocTag::Default(reference), location));
+                    tags.push((AsdocTag::Default(reference), location));
                 },
 
                 // @deprecated
@@ -4509,7 +4509,7 @@ impl<'input> Parser<'input> {
                         message = Some(text.clone());
                     }
 
-                    tags.push((AsDocTag::Deprecated { message }, location));
+                    tags.push((AsdocTag::Deprecated { message }, location));
                 },
 
                 // @eventType typeOrConstant
@@ -4522,14 +4522,14 @@ impl<'input> Parser<'input> {
                         ..self.options()
                     };
                     let exp = ParserFacade(self.compilation_unit(), parser_options).parse_expression();
-                    tags.push((AsDocTag::EventType(exp), location));
+                    tags.push((AsdocTag::EventType(exp), location));
                 },
 
                 // @example text
                 "example" => {
                     let (text, location) = join_asdoc_content(building_content);
                     let location = tag_location.combine_with(location);
-                    tags.push((AsDocTag::Example(text), location));
+                    tags.push((AsdocTag::Example(text), location));
                 },
 
                 // @inheritDoc
@@ -4539,10 +4539,10 @@ impl<'input> Parser<'input> {
 
                     // Content must be empty
                     if !regex_is_match!(r"^\s*$", &text) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
 
-                    tags.push((AsDocTag::InheritDoc, location));
+                    tags.push((AsdocTag::InheritDoc, location));
                 },
 
                 // @internal text
@@ -4552,10 +4552,10 @@ impl<'input> Parser<'input> {
 
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &text) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
 
-                    tags.push((AsDocTag::Internal(text), location));
+                    tags.push((AsdocTag::Internal(text), location));
                 },
 
                 // @langversion text
@@ -4565,10 +4565,10 @@ impl<'input> Parser<'input> {
 
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &text) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
 
-                    tags.push((AsDocTag::Langversion(text), location));
+                    tags.push((AsdocTag::Langversion(text), location));
                 },
 
                 // @param paramName description
@@ -4577,9 +4577,9 @@ impl<'input> Parser<'input> {
                     let location = tag_location.combine_with(location);
 
                     if let Some((_, name, description)) = regex_captures!(r"(?x) ([^\s]+) (.*)", &content) {
-                        tags.push((AsDocTag::Param { name: name.into(), description: description.trim_start().into() }, location));
+                        tags.push((AsdocTag::Param { name: name.into(), description: description.trim_start().into() }, location));
                     } else {
-                        tags.push((AsDocTag::Param { name: content, description: "".into() }, location));
+                        tags.push((AsdocTag::Param { name: content, description: "".into() }, location));
                     }
                 },
 
@@ -4590,10 +4590,10 @@ impl<'input> Parser<'input> {
 
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &text) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
 
-                    tags.push((AsDocTag::Playerversion(text), location));
+                    tags.push((AsdocTag::Playerversion(text), location));
                 },
 
                 // @private
@@ -4603,10 +4603,10 @@ impl<'input> Parser<'input> {
 
                     // Content must be empty
                     if !regex_is_match!(r"^\s*$", &text) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
 
-                    tags.push((AsDocTag::Private, location));
+                    tags.push((AsdocTag::Private, location));
                 },
 
                 // @productversion text
@@ -4616,17 +4616,17 @@ impl<'input> Parser<'input> {
 
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &text) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
 
-                    tags.push((AsDocTag::Productversion(text), location));
+                    tags.push((AsdocTag::Productversion(text), location));
                 },
 
                 // @return text
                 "return" => {
                     let (text, location) = join_asdoc_content(building_content);
                     let location = tag_location.combine_with(location);
-                    tags.push((AsDocTag::Return(text), location));
+                    tags.push((AsdocTag::Return(text), location));
                 },
 
                 // @see reference [displayText]
@@ -4645,7 +4645,7 @@ impl<'input> Parser<'input> {
                         display_text = None;
                     }
                     if let Some(reference) = self.parse_asdoc_reference(&reference, &reference_loc, &tag_location, &tag_name) {
-                        tags.push((AsDocTag::See { reference, display_text }, location));
+                        tags.push((AsdocTag::See { reference, display_text }, location));
                     }
                 },
 
@@ -4670,9 +4670,9 @@ impl<'input> Parser<'input> {
                             ..self.options()
                         };
                         let exp = ParserFacade(self.compilation_unit(), parser_options).parse_type_expression();
-                        tags.push((AsDocTag::Throws { class_reference: exp, description }, location));
+                        tags.push((AsdocTag::Throws { class_reference: exp, description }, location));
                     } else {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
                 },
 
@@ -4681,15 +4681,15 @@ impl<'input> Parser<'input> {
                     let (content, location) = join_asdoc_content(building_content);
                     // Content must be non empty
                     if regex_is_match!(r"^\s*$", &content) {
-                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.clone()]);
+                        self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.clone()]);
                     }
                     let location = tag_location.combine_with(location);
-                    tags.push((AsDocTag::Version(content), location));
+                    tags.push((AsdocTag::Version(content), location));
                 },
 
                 // Unrecognized tag
                 _ => {
-                    self.add_syntax_error(&tag_location, DiagnosticKind::UnrecognizedAsDocTag, diagarg![tag_name.clone()]);
+                    self.add_syntax_error(&tag_location, DiagnosticKind::UnrecognizedAsdocTag, diagarg![tag_name.clone()]);
                 },
             }
         } else if !building_content.is_empty() {
@@ -4703,10 +4703,10 @@ impl<'input> Parser<'input> {
         building_content.clear();
     }
 
-    fn parse_asdoc_reference(&self, reference: &str, reference_loc: &Location, tag_location: &Location, tag_name: &str) -> Option<Rc<AsDocReference>> {
+    fn parse_asdoc_reference(&self, reference: &str, reference_loc: &Location, tag_location: &Location, tag_name: &str) -> Option<Rc<AsdocReference>> {
         let split: Vec<&str> = reference.split("#").collect();
         if split.len() > 2 {
-            self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.to_owned()]);
+            self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.to_owned()]);
             return None;
         }
         let mut base: Option<Rc<Expression>> = None;
@@ -4735,10 +4735,10 @@ impl<'input> Parser<'input> {
         }
 
         if base.is_none() && instance_property.is_none() {
-            self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsDocTag, diagarg![tag_name.to_owned()]);
+            self.add_syntax_error(&tag_location, DiagnosticKind::FailedParsingAsdocTag, diagarg![tag_name.to_owned()]);
             return None;
         }
-        Some(Rc::new(AsDocReference { base, instance_property, }))
+        Some(Rc::new(AsdocReference { base, instance_property, }))
     }
 
     /// Parses MXMLElement starting from its XMLTagContent.
@@ -5149,7 +5149,7 @@ enum XmlPiError {
     Encoding,
 }
 
-struct ParserAsDocLine {
+struct ParserAsdocLine {
     content: String,
     location: Location,
 }
@@ -5172,7 +5172,7 @@ impl ParserActivation {
 #[derive(Clone)]
 struct AnnotatableContext {
     start_location: Location,
-    asdoc: Option<Rc<AsDoc>>,
+    asdoc: Option<Rc<Asdoc>>,
     attributes: Vec<Attribute>,
     context: ParserDirectiveContext,
     /// Previous token as a directive context keyword.

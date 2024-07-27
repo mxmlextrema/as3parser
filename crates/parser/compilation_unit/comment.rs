@@ -39,7 +39,7 @@ impl Comment {
         self.location.replace(location);
     }
 
-    /// Indicates whether the comment is an AsDoc comment preceding
+    /// Indicates whether the comment is an ASDoc comment preceding
     /// a specific location.
     pub fn is_asdoc(&self, location_to_precede: &Location) -> bool {
         if self.multiline && self.content.borrow().starts_with('*') {

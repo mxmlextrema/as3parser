@@ -49,12 +49,12 @@ fn visit_class(defn: &ClassDefinition) {
     }
 }
 
-fn print_asdoc(asdoc: &Rc<AsDoc>) {
+fn print_asdoc(asdoc: &Rc<Asdoc>) {
     if let Some((text, loc)) = &asdoc.main_body {
         println!("Found main body at {}:{}\n\n{}\n\n", loc.first_line_number(), loc.first_column() + 1, text);
     }
     for (tag, loc) in &asdoc.tags {
-        if matches!(tag, AsDocTag::Private) {
+        if matches!(tag, AsdocTag::Private) {
             println!("Found @private tag at {}:{}\n\n", loc.first_line_number(), loc.first_column() + 1);
         }
     }

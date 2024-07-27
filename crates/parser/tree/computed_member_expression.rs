@@ -7,6 +7,6 @@ pub struct ComputedMemberExpression {
     pub base: Rc<Expression>,
     /// ASDoc. Always ignore this field; it is used solely
     /// when parsing meta-data.
-    pub asdoc: Option<Rc<AsDoc>>,
+    pub asdoc: Option<Rc<Asdoc>>,
     pub key: Rc<Expression>,
 }
