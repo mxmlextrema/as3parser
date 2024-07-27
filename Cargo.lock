@@ -277,6 +277,53 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
 
 [[package]]
+name = "mxmlextrema-as3parser"
+version = "1.1.0"
+dependencies = [
+ "bitflags",
+ "by_address",
+ "bytes",
+ "conv",
+ "htmlentity",
+ "hydroperfox-filepaths",
+ "hydroperfox-lateformat",
+ "hydroperfox-sourcetext",
+ "lazy-regex",
+ "lazy_static",
+ "maplit",
+ "num-bigint",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "serde_json",
+ "unicode-general-category",
+]
+
+[[package]]
+name = "mxmlextrema_as3parser_demo"
+version = "0.1.0"
+dependencies = [
+ "maplit",
+ "mxmlextrema-as3parser",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
+name = "mxmlextrema_as3parser_test"
+version = "0.4.0"
+dependencies = [
+ "clap",
+ "hydroperfox-filepaths",
+ "maplit",
+ "mxmlextrema-as3parser",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "num-bigint"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -411,53 +458,6 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
-
-[[package]]
-name = "mxmlextrema-as3parser"
-version = "1.0.0"
-dependencies = [
- "bitflags",
- "by_address",
- "bytes",
- "conv",
- "htmlentity",
- "hydroperfox-filepaths",
- "hydroperfox-lateformat",
- "hydroperfox-sourcetext",
- "lazy-regex",
- "lazy_static",
- "maplit",
- "num-bigint",
- "num-derive",
- "num-traits",
- "serde",
- "serde_json",
- "unicode-general-category",
-]
-
-[[package]]
-name = "mxmlextrema_as3parser_demo"
-version = "0.1.0"
-dependencies = [
- "maplit",
- "serde",
- "serde_json",
- "mxmlextrema-as3parser",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "mxmlextrema_as3parser_test"
-version = "0.4.0"
-dependencies = [
- "clap",
- "hydroperfox-filepaths",
- "maplit",
- "serde",
- "serde_json",
- "mxmlextrema-as3parser",
-]
 
 [[package]]
 name = "syn"

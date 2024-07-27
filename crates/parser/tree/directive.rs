@@ -28,7 +28,6 @@ pub enum Directive {
     ImportDirective(ImportDirective),
     UseNamespaceDirective(UseNamespaceDirective),
     IncludeDirective(IncludeDirective),
-    NormalConfigurationDirective(NormalConfigurationDirective),
     PackageConcatDirective(PackageConcatDirective),
     DirectiveInjection(DirectiveInjectionNode),
     VariableDefinition(VariableDefinition),
@@ -67,7 +66,6 @@ impl Directive {
             Self::ImportDirective(d) => d.location.clone(),
             Self::UseNamespaceDirective(d) => d.location.clone(),
             Self::IncludeDirective(d) => d.location.clone(),
-            Self::NormalConfigurationDirective(d) => d.location.clone(),
             Self::PackageConcatDirective(d) => d.location.clone(),
             Self::DirectiveInjection(d) => d.location.clone(),
             Self::VariableDefinition(d) => d.location.clone(),
@@ -92,7 +90,6 @@ impl Directive {
             Self::ImportDirective(_) |
             Self::UseNamespaceDirective(_) |
             Self::IncludeDirective(_) |
-            Self::NormalConfigurationDirective(_) |
             Self::PackageConcatDirective(_) |
             Self::VariableDefinition(_) |
             Self::FunctionDefinition(_) |

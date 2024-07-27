@@ -19,7 +19,7 @@
         "metadata": null,
         "directives": [
           {
-            "NormalConfigurationDirective": {
+            "ConfigurationDirective": {
               "location": "14:62-20:6",
               "namespace": [
                 "CONFIG",
@@ -139,7 +139,7 @@
                     "metadata": null,
                     "directives": [
                       {
-                        "NormalConfigurationDirective": {
+                        "ConfigurationDirective": {
                           "location": "15:9-18:10",
                           "namespace": [
                             "CONFIG",
@@ -311,7 +311,7 @@
                         }
                       },
                       {
-                        "NormalConfigurationDirective": {
+                        "ConfigurationDirective": {
                           "location": "19:9-19:45",
                           "namespace": [
                             "CONFIG",

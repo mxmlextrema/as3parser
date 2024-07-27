@@ -3,20 +3,20 @@ use by_address::ByAddress;
 
 const LARGE_BYTES: usize = 26_000;
 
-/// Represents a mapping of nodes to something.
+/// Represents the mapping of any node to something.
 /// 
-/// A limited set of nodes may be mapped to something within this
-/// structure through using the implemented `TreeSemanticsAccessor`
+/// A limited subtype of nodes may be mapped to something within this
+/// structure through using the implemented `NodeAssignmentMethod`
 /// methods, such as `.get()` and `.set()`.
-pub struct TreeSemantics<S> {
-    common: TreeSemantics1<S>,
-    large_units: RefCell<HashMap<ByAddress<Rc<CompilationUnit>>, TreeSemantics1<S>>>,
+pub struct NodeAssignment<S> {
+    common: NodeAssignment1<S>,
+    large_units: RefCell<HashMap<ByAddress<Rc<CompilationUnit>>, NodeAssignment1<S>>>,
 }
 
-impl<S: Clone> TreeSemantics<S> {
+impl<S: Clone> NodeAssignment<S> {
     pub fn new() -> Self {
         Self {
-            common: TreeSemantics1::new(),
+            common: NodeAssignment1::new(),
             large_units: RefCell::new(HashMap::new()),
         }
     }
@@ -27,10 +27,10 @@ impl<S: Clone> TreeSemantics<S> {
     }
 }
 
-/// Defines access methods for the `TreeSemantics` structure,
+/// Defines access methods for the `NodeAssignment` structure,
 /// used for attaching semantics to the syntactic tree,
 /// where `T` is the node type, and `S` is the symbol type.
-pub trait TreeSemanticsAccessor<T, S: Clone> {
+pub trait NodeAssignmentMethod<T, S: Clone> {
     fn get(&self, node: &Rc<T>) -> Option<S>;
     fn set(&self, node: &Rc<T>, symbol: Option<S>);
     fn delete(&self, node: &Rc<T>) -> bool;
@@ -38,9 +38,9 @@ pub trait TreeSemanticsAccessor<T, S: Clone> {
 }
 
 macro impl_semantics_with_loc_call {
-    (struct $tree_semantics_id:ident, $($nodetype:ident),*$(,)?) => {
+    (struct $node_assignment_id:ident, $($nodetype:ident),*$(,)?) => {
         $(
-            impl<S: Clone> TreeSemanticsAccessor<$nodetype, S> for $tree_semantics_id<S> {
+            impl<S: Clone> NodeAssignmentMethod<$nodetype, S> for $node_assignment_id<S> {
                 fn get(&self, node: &Rc<$nodetype>) -> Option<S> {
                     let cu = node.location().compilation_unit();
                     if cu.text().len() < LARGE_BYTES {
@@ -61,7 +61,7 @@ macro impl_semantics_with_loc_call {
                         if let Some(m1) = m1 {
                             m1.set(node, symbol);
                         } else {
-                            let m1 = TreeSemantics1::new();
+                            let m1 = NodeAssignment1::new();
                             m1.set(node, symbol);
                             large_units.insert(ByAddress(cu), m1);
                         }
@@ -93,9 +93,9 @@ macro impl_semantics_with_loc_call {
 }
 
 macro impl_semantics_with_loc_field {
-    (struct $tree_semantics_id:ident, $($nodetype:ident),*$(,)?) => {
+    (struct $node_assignment_id:ident, $($nodetype:ident),*$(,)?) => {
         $(
-            impl<S: Clone> TreeSemanticsAccessor<$nodetype, S> for $tree_semantics_id<S> {
+            impl<S: Clone> NodeAssignmentMethod<$nodetype, S> for $node_assignment_id<S> {
                 fn get(&self, node: &Rc<$nodetype>) -> Option<S> {
                     let cu = node.location.compilation_unit();
                     if cu.text().len() < LARGE_BYTES {
@@ -116,7 +116,7 @@ macro impl_semantics_with_loc_field {
                         if let Some(m1) = m1 {
                             m1.set(node, symbol);
                         } else {
-                            let m1 = TreeSemantics1::new();
+                            let m1 = NodeAssignment1::new();
                             m1.set(node, symbol);
                             large_units.insert(ByAddress(cu), m1);
                         }
@@ -148,13 +148,13 @@ macro impl_semantics_with_loc_field {
 }
 
 macro impl_semantics_1 {
-    (struct $tree_semantics_1_id:ident, fn $new_id:ident, fn $clear_id:ident, $($nodetype:ident),*$(,)?) => {
+    (struct $node_assignment_1_id:ident, fn $new_id:ident, fn $clear_id:ident, $($nodetype:ident),*$(,)?) => {
         #[allow(non_snake_case)]
-        struct $tree_semantics_1_id<S> {
+        struct $node_assignment_1_id<S> {
             $($nodetype: RefCell<HashMap<NodeAsKey<Rc<$nodetype>>, Option<S>>>,)*
         }
 
-        impl<S: Clone> $tree_semantics_1_id<S> {
+        impl<S: Clone> $node_assignment_1_id<S> {
             pub fn $new_id() -> Self {
                 Self {
                     $($nodetype: RefCell::new(HashMap::new()),)*
@@ -167,7 +167,7 @@ macro impl_semantics_1 {
         }
 
         $(
-            impl<S: Clone> TreeSemanticsAccessor<$nodetype, S> for $tree_semantics_1_id<S> {
+            impl<S: Clone> NodeAssignmentMethod<$nodetype, S> for $node_assignment_1_id<S> {
                 fn get(&self, node: &Rc<$nodetype>) -> Option<S> {
                     self.$nodetype.borrow().get(&NodeAsKey(node.clone())).map(|v| v.clone().unwrap())
                 }
@@ -186,7 +186,7 @@ macro impl_semantics_1 {
 }
 
 impl_semantics_with_loc_call!(
-    struct TreeSemantics,
+    struct NodeAssignment,
     Expression,
     InitializerField,
     Directive,
@@ -199,12 +199,14 @@ impl_semantics_with_loc_call!(
 );
 
 impl_semantics_with_loc_field!(
-    struct TreeSemantics,
+    struct NodeAssignment,
     FunctionCommon,
     Block,
     Program,
     PackageDefinition,
     SimpleVariableDefinition,
+    Metadata,
+    MetadataEntry,
     Mxml,
     MxmlElement,
     MxmlAttribute,
@@ -215,7 +217,7 @@ impl_semantics_with_loc_field!(
 );
 
 impl_semantics_1!(
-    struct TreeSemantics1,
+    struct NodeAssignment1,
     fn new,
     fn clear,
     Expression,
@@ -227,6 +229,8 @@ impl_semantics_1!(
     PackageDefinition,
     SimpleVariableDefinition,
     QualifiedIdentifier,
+    Metadata,
+    MetadataEntry,
     Mxml,
     MxmlContent,
     MxmlElement,

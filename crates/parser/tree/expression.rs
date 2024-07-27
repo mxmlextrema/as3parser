@@ -27,7 +27,7 @@ pub enum Expression {
     Filter(FilterExpression),
     Super(SuperExpression),
     Call(CallExpression),
-    WithTypeArguments(ExpressionWithTypeArguments),
+    WithTypeArguments(ApplyTypeExpression),
     Unary(UnaryExpression),
     OptionalChaining(OptionalChainingExpression),
     OptionalChainingPlaceholder(OptionalChainingPlaceholder),
@@ -233,7 +233,7 @@ impl Expression {
     }
 
     /// `CONFIG::VAR_NAME`
-    pub(crate) fn to_normal_configuration_identifier(&self, parser: &Parser) -> Result<Option<((String, Location), (String, Location), Vec<Attribute>)>, MetadataRefineError1> {
+    pub(crate) fn to_configuration_identifier(&self, parser: &Parser) -> Result<Option<((String, Location), (String, Location), Vec<Attribute>)>, MetadataRefineError1> {
         if let Self::QualifiedIdentifier(id) = self {
             if id.attribute {
                 return Ok(None);
@@ -247,7 +247,7 @@ impl Expression {
             }
         }
         if let Self::ComputedMember(ComputedMemberExpression { base, asdoc, key, .. }) = self {
-            let a = base.to_normal_configuration_identifier(parser)?;
+            let a = base.to_configuration_identifier(parser)?;
             if a.is_none() {
                 return Ok(None);
             }
@@ -262,7 +262,7 @@ impl Expression {
     }
 
     /// `CONFIG::VAR_NAME`
-    pub(crate) fn to_normal_configuration_identifier_no_metadata(&self) -> Option<((String, Location), (String, Location))> {
+    pub(crate) fn to_configuration_identifier_no_metadata(&self) -> Option<((String, Location), (String, Location))> {
         if let Self::QualifiedIdentifier(id) = self {
             if id.attribute {
                 return None;

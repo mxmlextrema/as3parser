@@ -742,7 +742,7 @@ impl<'input> Parser<'input> {
                 arguments.push(self.parse_type_expression());
             }
             self.non_greedy_expect_type_parameters_gt();
-            Rc::new(Expression::WithTypeArguments(ExpressionWithTypeArguments {
+            Rc::new(Expression::WithTypeArguments(ApplyTypeExpression {
                 location: self.pop_location(),
                 base, arguments
             }))
@@ -1291,7 +1291,7 @@ impl<'input> Parser<'input> {
                         arguments.push(self.parse_type_expression());
                     }
                     self.non_greedy_expect_type_parameters_gt();
-                    base = Rc::new(Expression::WithTypeArguments(ExpressionWithTypeArguments {
+                    base = Rc::new(Expression::WithTypeArguments(ApplyTypeExpression {
                         location: self.pop_location(),
                         base, arguments
                     }));
@@ -2343,7 +2343,7 @@ impl<'input> Parser<'input> {
         })), semicolon)
     }
 
-    fn parse_qualified_identifier_statement_or_normal_config(&mut self, context: ParserDirectiveContext, id: (String, Location), asdoc: Option<Rc<AsDoc>>) -> (Rc<Directive>, bool) {
+    fn parse_qualified_identifier_statement_or_config(&mut self, context: ParserDirectiveContext, id: (String, Location), asdoc: Option<Rc<AsDoc>>) -> (Rc<Directive>, bool) {
         self.push_location(&id.1);
         let id_location = id.1.clone();
         let id = Rc::new(Expression::QualifiedIdentifier(QualifiedIdentifier {
@@ -2361,7 +2361,7 @@ impl<'input> Parser<'input> {
         });
 
         // Parse CONFIG::VAR_NAME
-        if let Some(result) = self.parse_opt_normal_config(&exp, asdoc.clone(), context.clone()) {
+        if let Some(result) = self.parse_opt_config(&exp, asdoc.clone(), context.clone()) {
             return result;
         }
 
@@ -2372,9 +2372,9 @@ impl<'input> Parser<'input> {
         })), semicolon)
     }
 
-    fn parse_opt_normal_config(&mut self, exp: &Rc<Expression>, asdoc: Option<Rc<AsDoc>>, context: ParserDirectiveContext) -> Option<(Rc<Directive>, bool)> {
+    fn parse_opt_config(&mut self, exp: &Rc<Expression>, asdoc: Option<Rc<AsDoc>>, context: ParserDirectiveContext) -> Option<(Rc<Directive>, bool)> {
         if self.peek_annotatable_directive_identifier_name() {
-            match exp.to_normal_configuration_identifier(self) {
+            match exp.to_configuration_identifier(self) {
                 Ok(Some((q, constant_name, metadata))) => {
                     self.push_location(&exp.location());
                     let mut context = AnnotatableContext {
@@ -2386,7 +2386,7 @@ impl<'input> Parser<'input> {
                     };
                     self.parse_attribute_keywords_or_expressions(&mut context);
                     let (directive, semicolon) = self.parse_annotatable_directive(context);
-                    return Some((Rc::new(Directive::NormalConfigurationDirective(NormalConfigurationDirective {
+                    return Some((Rc::new(Directive::ConfigurationDirective(ConfigurationDirective {
                         location: self.pop_location(),
                         namespace: q,
                         constant_name,
@@ -2400,10 +2400,10 @@ impl<'input> Parser<'input> {
             }
         }
         if self.peek(Token::BlockOpen) {
-            if let Some((q, constant_name)) = exp.to_normal_configuration_identifier_no_metadata() {
+            if let Some((q, constant_name)) = exp.to_configuration_identifier_no_metadata() {
                 self.push_location(&exp.location());
                 let block = self.parse_block(context);
-                return Some((Rc::new(Directive::NormalConfigurationDirective(NormalConfigurationDirective {
+                return Some((Rc::new(Directive::ConfigurationDirective(ConfigurationDirective {
                     location: self.pop_location(),
                     namespace: q,
                     constant_name,
@@ -3116,10 +3116,6 @@ impl<'input> Parser<'input> {
                 return self.parse_include_directive(context, id.1);
             }
 
-            if self.peek(Token::BlockOpen) && &id.0 == "configuration" && id.1.character_count() == "configuration".len() {
-                return self.parse_configuration_directive(context, id.1);
-            }
-
             // If there is a line break or offending token is "::",
             // do not proceed into parsing an expression attribute or annotatble directive.
             let eligible_attribute_or_directive
@@ -3154,7 +3150,7 @@ impl<'input> Parser<'input> {
                         self.push_location(&first_attr_expr.location());
 
                         // Parse CONFIG::VAR_NAME
-                        if let Some(result) = self.parse_opt_normal_config(&first_attr_expr, asdoc.clone(), context.clone()) {
+                        if let Some(result) = self.parse_opt_config(&first_attr_expr, asdoc.clone(), context.clone()) {
                             return result;
                         }
 
@@ -3178,7 +3174,7 @@ impl<'input> Parser<'input> {
                 }
                 return self.parse_annotatable_directive(context1);
             } else if self.peek(Token::ColonColon) {
-                self.parse_qualified_identifier_statement_or_normal_config(context, id, asdoc)
+                self.parse_qualified_identifier_statement_or_config(context, id, asdoc)
             } else {
                 self.parse_statement_starting_with_identifier(context, id)
             }
@@ -4159,43 +4155,6 @@ impl<'input> Parser<'input> {
             location: self.pop_location(),
             name,
         })
-    }
-
-    fn parse_configuration_directive(&mut self, context: ParserDirectiveContext, start_location: Location) -> (Rc<Directive>, bool) {
-        self.push_location(&start_location);
-        self.non_greedy_expect(Token::BlockOpen);
-        let subdirective = self.parse_configuration_subdirective(context.clone());
-        self.non_greedy_expect(Token::BlockClose);
-        (Rc::new(Directive::ConfigurationDirective(ConfigurationDirective {
-            location: self.pop_location(),
-            directive: subdirective,
-        })), true)
-    }
-
-    fn parse_configuration_subdirective(&mut self, context: ParserDirectiveContext) -> Rc<Directive> {
-        if self.peek(Token::If) {
-            self.mark_location();
-            self.next();
-            let mut test = self.create_invalidated_expression(&self.tokenizer.cursor_location());
-            self.non_greedy_expect(Token::ParenOpen);
-            if !self.expecting_token_error {
-                test = self.parse_expression(ParserExpressionContext { ..default() });
-            }
-            self.non_greedy_expect(Token::ParenClose);
-            let consequent = Rc::new(Directive::Block(self.parse_block(context.clone())));
-            let mut alternative: Option<Rc<Directive>> = None;
-            if self.consume(Token::Else) {
-                alternative = Some(self.parse_configuration_subdirective(context.clone()));
-            }
-            Rc::new(Directive::IfStatement(IfStatement {
-                location: self.pop_location(),
-                test,
-                consequent,
-                alternative,
-            }))
-        } else {
-            Rc::new(Directive::Block(self.parse_block(context.clone())))
-        }
     }
 
     fn keyword_or_expression_attribute_from_expression(&self, expr: &Rc<Expression>) -> Attribute {
