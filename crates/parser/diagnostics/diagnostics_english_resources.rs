@@ -71,6 +71,7 @@ lazy_static! {
         DiagnosticKind::ExpectingStatement.id() => "Expecting statement before {1}.".into(),
         DiagnosticKind::Unexpected.id() => "Unexpected {1}.".into(),
         DiagnosticKind::XmlClosingTagNameMustBeEquals.id() => "Closing tag name must be equals '{1}'.".into(),
+        DiagnosticKind::UnexpectedIncludeExtension.id() => "Unexpected include extension. Expected the file extension '.include.as'.".into(),
         // DiagnosticKind::K.id() => ".".into(),
     };
 }

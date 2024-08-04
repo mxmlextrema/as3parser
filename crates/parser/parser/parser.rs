@@ -3591,8 +3591,15 @@ impl<'input> Parser<'input> {
 
         // Resolve source
         if let Some(origin_file_path) = origin_file_path {
-            let sub_file_path = hydroperfox_filepaths::FlexPath::from_n_native([origin_file_path.as_ref(), "..", source.as_ref()]).to_string_with_flex_separator();
-            if self.tokenizer.compilation_unit().include_directive_is_circular(&sub_file_path) {
+            let sub_flex_file_path = hydroperfox_filepaths::FlexPath::from_n_native([origin_file_path.as_ref(), "..", source.as_ref()]);
+            let sub_file_path = sub_flex_file_path.to_string_with_flex_separator();
+
+            if !sub_flex_file_path.has_extension(".include.as") {
+                self.add_syntax_error(&source_path_location.clone(), DiagnosticKind::UnexpectedIncludeExtension, vec![]);
+
+                // Use a placeholder compilation unit
+                nested_compilation_unit = CompilationUnit::new(None, "".into());
+            } else if self.tokenizer.compilation_unit().include_directive_is_circular(&sub_file_path) {
                 self.add_syntax_error(&source_path_location.clone(), DiagnosticKind::CircularIncludeDirective, vec![]);
 
                 // Use a placeholder compilation unit

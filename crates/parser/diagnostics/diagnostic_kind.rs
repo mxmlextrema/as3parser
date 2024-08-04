@@ -68,6 +68,7 @@ pub enum DiagnosticKind {
     ExpectingStatement = 1088,
     Unexpected = 1089,
     XmlClosingTagNameMustBeEquals = 1090,
+    UnexpectedIncludeExtension = 1091,
 }
 
 impl DiagnosticKind {
