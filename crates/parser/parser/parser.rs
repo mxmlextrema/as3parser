@@ -1001,12 +1001,28 @@ impl<'input> Parser<'input> {
     fn parse_function_common(&mut self, function_expr: bool, block_context: ParserDirectiveContext, allow_in: bool) -> Rc<FunctionCommon> {
         self.mark_location();
         self.duplicate_location();
+        let mut this_parameter: Option<Rc<ThisParameter>> = None;
         let mut params: Vec<Rc<Parameter>> = vec![];
         let mut return_annotation = Some(self.create_invalidated_expression(&self.tokenizer.cursor_location()));
         self.non_greedy_expect(Token::ParenOpen);
         if !self.expecting_token_error {
             if !self.peek(Token::ParenClose) {
-                params.push(self.parse_parameter());
+                if self.peek(Token::This) {
+                    self.mark_location();
+                    self.next();
+                    let mut type_annotation = self.create_invalidated_expression(&self.tokenizer.cursor_location());
+                    self.expect(Token::Colon);
+                    if !self.expecting_token_error
+                    {
+                        type_annotation = self.parse_type_expression();
+                    }
+                    this_parameter = Some(Rc::new(ThisParameter {
+                        location: self.pop_location(),
+                        type_annotation,
+                    }));
+                } else {
+                    params.push(self.parse_parameter());
+                }
                 while self.consume(Token::Comma) {
                     params.push(self.parse_parameter());
                 }
@@ -1050,6 +1066,7 @@ impl<'input> Parser<'input> {
             contains_yield: activation.uses_yield,
             signature: FunctionSignature {
                 location: signature_location,
+                this_parameter,
                 parameters: params,
                 result_type: return_annotation,
             },

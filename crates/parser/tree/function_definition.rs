@@ -78,8 +78,15 @@ impl FunctionCommon {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionSignature {
     pub location: Location,
+    pub this_parameter: Option<Rc<ThisParameter>>,
     pub parameters: Vec<Rc<Parameter>>,
     pub result_type: Option<Rc<Expression>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ThisParameter {
+    pub location: Location,
+    pub type_annotation: Rc<Expression>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
