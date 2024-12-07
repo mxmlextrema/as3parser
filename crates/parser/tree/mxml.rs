@@ -20,14 +20,14 @@ pub enum XmlVersion {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MxmlElement {
     pub location: Location,
-    pub name: MxmlName,
+    pub name: MxmlTagName,
     /// Attribute list, including `xmlns` and `xmlns:` namespace prefixes.
     pub attributes: Vec<Rc<MxmlAttribute>>,
     /// The namespace mapping relative to the XML element.
     #[serde(skip)]
     pub namespace: Rc<MxmlNamespace>,
     pub content: Option<Vec<Rc<MxmlContent>>>,
-    pub closing_name: Option<MxmlName>,
+    pub closing_name: Option<MxmlTagName>,
 }
 
 impl MxmlElement {
@@ -53,6 +53,14 @@ pub struct MxmlAttribute {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+pub struct MxmlTagName {
+    pub location: Location,
+    /// The unresolved prefix of the name.
+    pub prefix: Option<String>,
+    pub name: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct MxmlName {
     pub location: Location,
     /// The unresolved prefix of the name.
@@ -60,7 +68,7 @@ pub struct MxmlName {
     pub name: String,
 }
 
-impl MxmlName {
+impl MxmlTagName {
     pub fn resolve_prefix(&self, namespace: &Rc<MxmlNamespace>) -> Result<String, MxmlNameError> {
         let Some(p) = self.prefix.as_ref() else {
             return if let Some(v) = namespace.get(MxmlNamespace::DEFAULT_NAMESPACE) {
@@ -68,6 +76,42 @@ impl MxmlName {
             } else {
                 Err(MxmlNameError::PrefixNotDefined(MxmlNamespace::DEFAULT_NAMESPACE.into()))
             };
+        };
+        if let Some(v) = namespace.get(p) {
+            Ok(v)
+        } else {
+            Err(MxmlNameError::PrefixNotDefined(p.clone()))
+        }
+    }
+
+    pub fn resolve_name(&self, namespace: &Rc<MxmlNamespace>) -> Result<(String, String), MxmlNameError> {
+        let p = self.resolve_prefix(namespace)?;
+        Ok((p, self.name.clone()))
+    }
+
+    pub fn equals_name(&self, other: &Self, namespace: &Rc<MxmlNamespace>) -> Result<bool, MxmlNameError> {
+        if self.name != other.name {
+            return Ok(false);
+        }
+        let p1 = self.resolve_prefix(namespace)?;
+        let p2 = other.resolve_prefix(namespace)?;
+        Ok(&p1 == &p2)
+    }
+
+    pub fn to_string(&self, namespace: &Rc<MxmlNamespace>) -> String {
+        self.resolve_name(namespace).map(|(uri, localname)| {
+            if uri.is_empty() {
+                return localname;
+            }
+            format!("{uri}:{localname}")
+        }).unwrap_or("[error]".into())
+    }
+}
+
+impl MxmlName {
+    pub fn resolve_prefix(&self, namespace: &Rc<MxmlNamespace>) -> Result<String, MxmlNameError> {
+        let Some(p) = self.prefix.as_ref() else {
+            return Ok(MxmlNamespace::DEFAULT_NAMESPACE.to_owned());
         };
         if let Some(v) = namespace.get(p) {
             Ok(v)

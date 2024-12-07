@@ -4802,7 +4802,7 @@ impl<'input> Parser<'input> {
         let name = self.process_mxml_tag_name(name, &namespace);
 
         let mut content: Option<Vec<Rc<MxmlContent>>> = None;
-        let mut closing_name: Option<MxmlName> = None;
+        let mut closing_name: Option<MxmlTagName> = None;
 
         let is_empty = self.consume_and_ie_xml_content(Token::XmlSlashGt);
 
@@ -4940,7 +4940,7 @@ impl<'input> Parser<'input> {
         }
     }
 
-    fn process_mxml_tag_name(&mut self, name: (String, Location), namespace: &Rc<MxmlNamespace>) -> MxmlName {
+    fn process_mxml_tag_name(&mut self, name: (String, Location), namespace: &Rc<MxmlNamespace>) -> MxmlTagName {
         let split = name.0.split(':').collect::<Vec<_>>();
         if split.len() > 2 {
             self.add_syntax_error(&name.1, DiagnosticKind::XmlNameAtMostOneColon, vec![]);
@@ -4951,7 +4951,7 @@ impl<'input> Parser<'input> {
             None
         };
         let name_str = split.last().unwrap();
-        let name = MxmlName {
+        let name = MxmlTagName {
             location: name.1.clone(),
             prefix,
             name: (*name_str).to_owned(),
