@@ -420,6 +420,49 @@ impl<'input> Parser<'input> {
         }))
     }
 
+    pub fn parse_metadata(&mut self) -> (Vec<Attribute>, Option<Rc<Asdoc>>) {
+        let Some(exp) = self.parse_opt_expression(Default::default()) else {
+            return (vec![], self.parse_asdoc());
+        };
+        match exp.to_metadata(self) {
+            Ok(Some(metadata)) => {
+                // For meta-data that are not one of certain Flex meta-data,
+                // delegate the respective ASDoc forward.
+                let mut new_metadata = Vec::<Attribute>::new();
+                let mut asdoc: Option<Rc<Asdoc>> = None;
+                for attr in &metadata {
+                    if let Attribute::Metadata(metadata) = attr {
+                        if !self.documentable_metadata.contains(&metadata.name.0) && metadata.asdoc.is_some() {
+                            new_metadata.push(Attribute::Metadata(Rc::new(Metadata {
+                                location: metadata.location.clone(),
+                                asdoc: None,
+                                name: metadata.name.clone(),
+                                entries: metadata.entries.clone(),
+                            })));
+                            asdoc = metadata.asdoc.clone();
+                        } else {
+                            new_metadata.push(attr.clone());
+                        }
+                    } else {
+                        new_metadata.push(attr.clone());
+                    }
+                }
+
+                (new_metadata, asdoc)
+            },
+            Ok(None) => {
+                let asdoc = self.parse_asdoc();
+                self.expect(Token::Eof);
+                (vec![], asdoc)
+            },
+            Err(MetadataRefineError1(MetadataRefineError::Syntax, loc)) => {
+                let asdoc = self.parse_asdoc();
+                self.add_syntax_error(&loc, DiagnosticKind::UnrecognizedMetadataSyntax, diagarg![]);
+                (vec![], asdoc)
+            },
+        }
+    }
+
     pub fn parse_expression(&mut self, context: ParserExpressionContext) -> Rc<Expression> {
         if let Some(exp) = self.parse_opt_expression(context) {
             exp
@@ -5297,5 +5340,11 @@ impl<'input> ParserFacade<'input> {
         let mut parser = self.create_parser();
         parser.next_ie_xml_content();
         parser.parse_mxml()
+    }
+
+    pub fn parse_metadata(&self) -> (Vec<Attribute>, Option<Rc<Asdoc>>) {
+        let mut parser = self.create_parser();
+        parser.next();
+        parser.parse_metadata()
     }
 }
