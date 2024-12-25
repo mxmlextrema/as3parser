@@ -424,6 +424,8 @@ impl<'input> Parser<'input> {
         let Some(exp) = self.parse_opt_expression(Default::default()) else {
             return (vec![], self.parse_asdoc());
         };
+        self.expect(Token::Eof);
+
         match exp.to_metadata(self) {
             Ok(Some(metadata)) => {
                 // For meta-data that are not one of certain Flex meta-data,
@@ -451,14 +453,44 @@ impl<'input> Parser<'input> {
                 (new_metadata, asdoc)
             },
             Ok(None) => {
-                let asdoc = self.parse_asdoc();
-                self.expect(Token::Eof);
-                (vec![], asdoc)
+                self.add_syntax_error(&exp.location(), DiagnosticKind::UnallowedExpression, diagarg![]);
+                (vec![], None)
             },
             Err(MetadataRefineError1(MetadataRefineError::Syntax, loc)) => {
                 let asdoc = self.parse_asdoc();
                 self.add_syntax_error(&loc, DiagnosticKind::UnrecognizedMetadataSyntax, diagarg![]);
                 (vec![], asdoc)
+            },
+        }
+    }
+
+    pub fn parse_metadata_content(&mut self) -> Rc<Metadata> {
+        let loc1 = self.token.1.clone();
+        let Some(exp) = self.parse_opt_expression(Default::default()) else {
+            self.push_location(&loc1);
+            self.expect_identifier(false);
+            return Rc::new(Metadata {
+                location: self.pop_location(),
+                asdoc: None,
+                name: (INVALIDATED_IDENTIFIER.to_owned(), loc1),
+                entries: None,
+            });
+        };
+        self.expect(Token::Eof);
+
+        match self.refine_metadata(&exp, None) {
+            Ok(metadata) => {
+                metadata
+            },
+            Err(MetadataRefineError::Syntax) => {
+                self.push_location(&loc1);
+                self.add_syntax_error(&exp.location(), DiagnosticKind::UnrecognizedMetadataSyntax, diagarg![]);
+                Rc::new(Metadata {
+                    location: self.pop_location(),
+                    asdoc: None,
+                    name: (INVALIDATED_IDENTIFIER.to_owned(), loc1),
+                    entries: None,
+                })
             },
         }
     }
@@ -5342,9 +5374,17 @@ impl<'input> ParserFacade<'input> {
         parser.parse_mxml()
     }
 
+    /// Parses a sequence of zero or meta data and an ASDoc comment.
     pub fn parse_metadata(&self) -> (Vec<Attribute>, Option<Rc<Asdoc>>) {
         let mut parser = self.create_parser();
         parser.next();
         parser.parse_metadata()
+    }
+
+    /// Parses the content inside the square brackets (`[ ... ]`) of a meta data.
+    pub fn parse_metadata_content(&self) -> Rc<Metadata> {
+        let mut parser = self.create_parser();
+        parser.next();
+        parser.parse_metadata_content()
     }
 }

@@ -72,6 +72,7 @@ lazy_static! {
         DiagnosticKind::Unexpected.id() => "Unexpected {1}.".into(),
         DiagnosticKind::XmlClosingTagNameMustBeEquals.id() => "Closing tag name must be equals '{1}'.".into(),
         DiagnosticKind::UnexpectedIncludeExtension.id() => "Unexpected include extension. Expected the file extension '.include.as'.".into(),
+        DiagnosticKind::UnallowedExpression.id() => "Unallowed expression.".into(),
         // DiagnosticKind::K.id() => ".".into(),
     };
 }
