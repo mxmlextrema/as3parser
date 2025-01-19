@@ -3208,6 +3208,18 @@ impl<'input> Parser<'input> {
                 return self.parse_include_directive(context, id.1);
             }
 
+            // Labeled statement
+            if self.consume(Token::Colon) {
+                self.push_location(&id.1);
+                let (substatement, semicolon) = self.parse_substatement(context.put_label(id.0.clone()));
+                let labeled = Rc::new(Directive::LabeledStatement(LabeledStatement {
+                    location: self.pop_location(),
+                    label: id.clone(),
+                    substatement,
+                }));
+                return (labeled, semicolon);
+            }
+
             // If there is a line break or offending token is "::",
             // do not proceed into parsing an expression attribute or annotatble directive.
             let eligible_attribute_or_directive
