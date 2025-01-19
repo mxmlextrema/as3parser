@@ -169,7 +169,13 @@ macro impl_semantics_1 {
         $(
             impl<S: Clone> NodeAssignmentMethod<$nodetype, S> for $node_assignment_1_id<S> {
                 fn get(&self, node: &Rc<$nodetype>) -> Option<S> {
-                    self.$nodetype.borrow().get(&NodeAsKey(node.clone())).map(|v| v.clone().unwrap())
+                    let m = self.$nodetype.borrow();
+                    let v = m.get(&NodeAsKey(node.clone()));
+                    if let Some(v) = v {
+                        v.clone()
+                    } else {
+                        None
+                    }
                 }
                 fn set(&self, node: &Rc<$nodetype>, symbol: Option<S>) {
                     self.$nodetype.borrow_mut().insert(NodeAsKey(node.clone()), symbol);
