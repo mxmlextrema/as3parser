@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize, Serializer};
 use std::rc::Rc;
 use crate::compilation_unit::*;
 use crate::util::{CharacterReader, count_first_whitespace_characters};
+use crate::parser::CharacterValidator;
 
 /// Represents a source location. This location includes
 /// spanning lines and columns and the reference compilation unit.
@@ -172,5 +173,44 @@ impl Location {
     /// Shifts the count of whitespace characters in a text off this location.
     pub fn shift_whitespace(&self, text: &str) -> Location {
         self.shift_until_eof(count_first_whitespace_characters(text))
+    }
+
+    /// Returns a string containing related code line.
+    /// The returned string is in the following format:
+    /// 
+    /// ```plain
+    /// LINENO |   someCode();
+    ///            ^
+    /// ```
+    /// 
+    pub fn show_code(&self) -> String {
+        let cu = self.compilation_unit();
+        let start = cu.get_line_offset(self.first_line_number());
+        if let Some(start) = start {
+            let end = cu.get_line_offset(self.first_line_number() + 1).unwrap_or(cu.text().len());
+            let mut subregion = &cu.text()[start..end];
+            let mut indent_length = 0usize;
+            for ch in subregion.chars() {
+                if !CharacterValidator::is_whitespace(ch) {
+                    break;
+                }
+                indent_length += ch.len_utf8();
+            }
+            subregion = &subregion[indent_length..];
+            if subregion.len() >= 150 {
+                subregion = &subregion[..149];
+            }
+
+            // Pointer
+            let mut pointer = " ".repeat(cu.text()[(start + indent_length)..self.first_offset()].chars().count()) + "^";
+            if pointer.len() >= 150 {
+                pointer = pointer[..149].to_owned();
+            }
+
+            let line = format!("{} |   {}", self.first_line_number(), subregion);
+            let pointer = format!("{}     {}", " ".repeat(self.first_line_number().to_string().chars().count()), pointer);
+            return format!("{line}\n{pointer}");
+        }
+        "".into()
     }
 }
