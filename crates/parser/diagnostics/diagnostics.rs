@@ -124,7 +124,10 @@ impl Diagnostic {
             "Syntax error"
         }).to_owned();
 
-        let file_path = self.location.compilation_unit.file_path.clone().map_or("".to_owned(), |s| format!("{s}:"));
+        let mut file_path = self.location.compilation_unit.file_path.clone().map_or("".to_owned(), |s| format!("{s}:"));
+        if file_path.starts_with(r"\\?\") {
+            file_path = file_path[4..].to_owned();
+        }
         let line = self.location.first_line_number();
         let column = self.location.first_column() + 1;
         if let Some(id) = id {
