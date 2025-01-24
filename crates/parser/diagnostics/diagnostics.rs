@@ -1,5 +1,6 @@
 use std::any::Any;
 
+use hydroperfox_filepaths::FlexPath;
 use maplit::hashmap;
 use crate::ns::*;
 
@@ -116,6 +117,12 @@ impl Diagnostic {
 
     /// Formats the diagnostic by overriding the message text.
     pub fn format_with_message(&self, message: &str, id: Option<i32>) -> String {
+        self.format_with_message_and_base_path(message, id, None)
+    }
+
+    /// Formats the diagnostic by overriding the message text and providing a base Whack package's path
+    /// (to relativize the source path).
+    pub fn format_with_message_and_base_path(&self, message: &str, id: Option<i32>, base_path: Option<&str>) -> String {
         let category = (if self.is_verify_error {
             "Verify error"
         } else if self.is_warning {
@@ -125,6 +132,9 @@ impl Diagnostic {
         }).to_owned();
 
         let mut file_path = self.location.compilation_unit.file_path.clone().map_or("".to_owned(), |s| format!("{s}:"));
+        if let Some(base_path) = base_path {
+            file_path = FlexPath::new_native(base_path).relative(&file_path).to_owned();
+        }
         if file_path.starts_with(r"\\?\") {
             file_path = file_path[4..].to_owned();
         }
@@ -140,6 +150,11 @@ impl Diagnostic {
     /// Formats the diagnostic in English.
     pub fn format_english(&self) -> String {
         self.format_with_message(&self.format_message_english(), Some(self.id()))
+    }
+
+    /// Formats the diagnostic in English.
+    pub fn format_english_with_base_path(&self, base_path: &str) -> String {
+        self.format_with_message_and_base_path(&self.format_message_english(), Some(self.id()), Some(base_path))
     }
 
     pub fn format_message_english(&self) -> String {
