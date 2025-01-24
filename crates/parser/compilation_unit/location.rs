@@ -196,7 +196,13 @@ impl Location {
                 }
                 indent_length += ch.len_utf8();
             }
-            subregion = &subregion[indent_length..];
+            let mut line_terminator_length = 0usize;
+            for ch in subregion.chars().rev() {
+                if CharacterValidator::is_line_terminator(ch) {
+                    line_terminator_length += ch.len_utf8();
+                }
+            }
+            subregion = &subregion[indent_length..(subregion.len() - line_terminator_length)];
             if subregion.len() >= 150 {
                 subregion = &subregion[..149];
             }
